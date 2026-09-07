@@ -1,4 +1,4 @@
-# Sistema RAG - Paso 1
+# Sistema RAG
 
 Backend de un sistema RAG construido con Python y FastAPI.
 
