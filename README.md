@@ -1,109 +1,97 @@
-# Sistema RAG — Paso 1
+# Sistema RAG - Paso 1
 
-Base del backend construida con Python, FastAPI, PostgreSQL y Docker.
+Backend de un sistema RAG construido con Python y FastAPI.
 
-## Requisitos
+## Arquitectura
 
-- Docker Desktop instalado y en ejecución.
-- Python 3.12 o compatible para ejecutar las pruebas fuera de Docker.
+La aplicación sigue una arquitectura modular por capas:
 
-## Iniciar el proyecto
+- **API:** rutas HTTP y documentación de la API.
+- **Schemas:** validación y serialización de datos.
+- **Services:** lógica de negocio y casos de uso.
+- **Models:** entidades persistentes.
+- **Database:** sesiones, configuración de acceso y migraciones Alembic.
+- **Core:** configuración general de la aplicación.
+- **Infraestructura:** Docker Compose para ejecutar la API y PostgreSQL.
 
-Desde la carpeta raíz del proyecto ejecuta:
+El flujo principal es:
+
+```text
+Cliente -> API -> Services -> Database
+                    |
+                 Schemas
+```
+
+## Ejecución en desarrollo
+
+### Requisitos
+
+- Docker Desktop.
+- Python 3.12 o compatible para ejecutar pruebas localmente.
+
+### Levantar los servicios
+
+Desde la raíz del proyecto:
+
+```bash
+docker compose up --build
+```
+
+La API expone sus rutas y la documentación interactiva de FastAPI durante la
+ejecución del entorno de desarrollo.
+
+Para ejecutar los servicios en segundo plano:
 
 ```bash
 docker compose up -d --build
 ```
 
-Servicios disponibles:
-
-- API: http://localhost:8000
-- Health check: http://localhost:8000/api/health
-- Documentación Swagger: http://localhost:8000/docs
-- PostgreSQL: `127.0.0.1:5433`
-
-La ruta de salud debe responder:
-
-```json
-{
-## Conexión a PostgreSQL
-
-Para conectarte desde DBeaver u otra herramienta utiliza:
-
-```text
-Host:       127.0.0.1
-Port:       5433
-Database:   rag_db
-Username:   rag_user
-Password:   rag_password
-```
-
-La API se conecta internamente usando el servicio Docker `db` en el puerto `5432`.
-
-## Volumen de PostgreSQL
-
-Los datos se guardan en el volumen Docker `postgres_data`. Las variables
-`POSTGRES_USER`, `POSTGRES_PASSWORD` y `POSTGRES_DB` solo se aplican cuando el
-volumen se inicializa por primera vez.
-
-Si necesitas reinicializar la base de datos desde cero, detén los servicios y
-elimina el volumen:
+Para revisar el estado:
 
 ```bash
-docker compose down -v
-  "service": "rag-api"
+docker compose ps
 ```
 
-> `docker compose down -v` elimina todos los datos almacenados en PostgreSQL.
-
-## Detener el proyecto
-}
-Para detener los contenedores sin eliminar los datos:
-
-## Detener el proyecto
-
-En la terminal donde se está ejecutando presiona `Ctrl + C`. Después puedes usar:
+Para detener los servicios sin eliminar los datos persistidos:
 
 ```bash
 docker compose down
 ```
 
-python3 -m venv .venv
+La configuración sensible debe gestionarse mediante variables de entorno y no
+debe publicarse en el repositorio.
+
+### Ejecutar pruebas localmente
 
 ```bash
 cd backend
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements-dev.txt
 pytest
 ```
 
-En Windows, activa el entorno con `.venv\\Scripts\\activate`.
+En Windows, activa el entorno con:
 
-## Estructura actual
+```text
+.venv\\Scripts\\activate
+```
+
+## Estructura principal
 
 ```text
 .
 ├── backend/
 │   ├── app/
-│   │   ├── api/
-│   │   │   └── routes/
-│   │   │       ├── documents.py
-│   │   │       └── health.py
+│   │   ├── api/routes/
 │   │   ├── core/
-│   │   │   └── config.py
 │   │   ├── db/
-│   │   │   ├── base.py
-│   │   │   └── session.py
 │   │   ├── models/
-│   │   │   └── document.py
 │   │   ├── schemas/
-│   │   │   └── document.py
 │   │   ├── services/
-│   │   │   └── document_service.py
 │   │   └── main.py
+│   ├── alembic/
 │   ├── tests/
-│   │   └── test_health.py
 │   ├── Dockerfile
 │   ├── requirements.txt
 │   └── requirements-dev.txt
